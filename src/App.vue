@@ -14,6 +14,12 @@ const handleWinnerSelected = (winner: string) => {
   history.value.unshift(winner);
 };
 
+const clearHistory = () => {
+  if (window.confirm('确定要清空所有历史记录吗？')) {
+    history.value = [];
+  }
+};
+
 // Load data from localStorage on component mount
 onMounted(() => {
   const savedNames = localStorage.getItem('lucky-names-input');
@@ -48,10 +54,14 @@ watch(history, (newValue) => {
           <textarea v-model="namesInput" placeholder="请输入参与抽奖的名单，每行一个"></textarea>
         </div>
         <div v-if="activeTab === 'history'" class="history-panel">
-          <h3>历史记录</h3>
-          <ul>
+          <div class="history-header">
+            <h3>历史记录</h3>
+            <button @click="clearHistory" class="clear-btn" v-if="history.length > 0">清空记录</button>
+          </div>
+          <ul v-if="history.length > 0">
             <li v-for="(winner, index) in history" :key="index">{{ winner }}</li>
           </ul>
+          <p v-else class="no-history">暂无历史记录</p>
         </div>
       </div>
     </div>
@@ -107,6 +117,7 @@ watch(history, (newValue) => {
   flex: 1;
   padding: 15px;
   overflow-y: auto;
+  min-height: 0; /* Prevents flexbox overflow issue */
 }
 
 /* Modern scrollbar for webkit browsers */
@@ -136,22 +147,58 @@ watch(history, (newValue) => {
   box-sizing: border-box;
 }
 
+.history-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .history-panel h3 {
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 18px;
   color: #333;
+}
+
+.clear-btn {
+  border: none;
+  background-color: #ff4d4f;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.3s;
+}
+
+.clear-btn:hover {
+  background-color: #d9363e;
 }
 
 .history-panel ul {
   list-style: none;
   padding: 0;
   margin: 0;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .history-panel li {
   padding: 8px 0;
   border-bottom: 1px solid #eee;
   color: #555;
+}
+
+.no-history {
+  color: #999;
+  text-align: center;
+  margin-top: 20px;
 }
 
 .main-content {
