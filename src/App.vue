@@ -75,61 +75,49 @@ watch(history, (newValue) => {
 #app {
   display: flex;
   height: 100vh;
-  background-color: #fff;
+  background-color: var(--light-gray);
+  color: var(--text-color);
 }
 
 .sidebar {
-  width: 300px;
-  background-color: #fff;
-  border-right: 1px solid #e0e0e0;
+  width: 320px;
+  background-color: #ffffff;
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+  box-shadow: none;
+  padding: 0 16px;
 }
 
 .tabs {
   display: flex;
-  border-bottom: 1px solid #e0e0e0;
+  padding-top: 8px;
 }
 
 .tabs button {
   flex: 1;
-  padding: 12px;
+  padding: 10px 14px;
   border: none;
-  background-color: #f7f7f7;
+  background-color: transparent;
   cursor: pointer;
   font-size: 16px;
-  transition: background-color 0.3s;
-  color: #555;
+  font-weight: 500;
+  color: var(--dark-gray);
+  border-radius: 8px;
+  transition: background-color 0.2s, color 0.2s;
 }
 
 .tabs button.active {
-  background-color: #fff;
-  font-weight: bold;
-  color: #000;
-}
-
-.tabs button:not(.active):hover {
-  background-color: #efefef;
+  background-color: var(--primary-color);
+  color: #fff;
+  font-weight: 500;
 }
 
 .tab-content {
   flex: 1;
-  padding: 15px;
+  padding: 16px 0 20px;
   overflow-y: auto;
-  min-height: 0; /* Prevents flexbox overflow issue */
-}
-
-/* Modern scrollbar for webkit browsers */
-.tab-content::-webkit-scrollbar {
-  width: 6px;
-}
-.tab-content::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-.tab-content::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  min-height: 0;
 }
 
 .names-panel {
@@ -139,12 +127,21 @@ watch(history, (newValue) => {
 .names-panel textarea {
   width: 100%;
   height: 100%;
-  border: 1px solid #ccc;
+  border: none;
+  background-color: var(--light-gray);
   border-radius: 8px;
-  padding: 10px;
-  font-size: 14px;
+  padding: 12px;
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
   resize: none;
   box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.names-panel textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
 }
 
 .history-panel {
@@ -157,28 +154,30 @@ watch(history, (newValue) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  padding: 12px 4px;
 }
 
 .history-panel h3 {
   margin: 0;
   font-size: 18px;
-  color: #333;
+  font-weight: 700;
+  color: var(--text-color);
 }
 
 .clear-btn {
   border: none;
-  background-color: #ff4d4f;
+  background-color: var(--danger-color);
   color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 6px 12px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 12px;
-  transition: background-color 0.3s;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s;
 }
 
 .clear-btn:hover {
-  background-color: #d9363e;
+  background-color: var(--danger-color-dark);
 }
 
 .history-panel ul {
@@ -190,15 +189,22 @@ watch(history, (newValue) => {
 }
 
 .history-panel li {
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
-  color: #555;
+  padding: 10px 4px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--dark-gray);
+  font-size: 15px;
+}
+
+.history-panel li:first-child {
+  font-weight: 500;
+  color: var(--text-color);
 }
 
 .no-history {
-  color: #999;
+  color: var(--dark-gray);
   text-align: center;
-  margin-top: 20px;
+  margin-top: 30px;
+  font-size: 15px;
 }
 
 .main-content {
@@ -206,7 +212,7 @@ watch(history, (newValue) => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f0f2f5; /* Different background for contrast */
+  background-color: var(--light-gray);
   padding: 40px;
   box-sizing: border-box;
 }

@@ -14,7 +14,8 @@ const canvasRef = ref<HTMLCanvasElement | null>(null);
 const rotation = ref(0);
 const isSpinning = ref(false);
 
-const colors = ['#FFD700', '#FF6347', '#ADFF2F', '#40E0D0', '#EE82EE', '#FF69B4'];
+const colors = [ '#6D5B97', '#F2A65A', '#F2795A', '#73C8A9', '#A8D0E6', '#F76D83' ];
+const primaryColor = ref('#007bff'); // Default fallback
 
 let resizeObserver: ResizeObserver | null = null;
 
@@ -28,39 +29,69 @@ const drawWheel = () => {
   const radius = canvas.width / 2;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Outer border
+  ctx.strokeStyle = '#E0E0E0';
+  ctx.lineWidth = 10;
+  ctx.beginPath();
+  ctx.arc(radius, radius, radius - 5, 0, Math.PI * 2);
+  ctx.stroke();
+
   ctx.save();
   ctx.translate(radius, radius);
   ctx.rotate(rotation.value);
 
-  const textRadius = radius * 0.65;
-  const fontSize = Math.max(12, Math.floor(radius / 20));
+  const textRadius = radius * 0.6;
+  const fontSize = Math.max(12, Math.floor(radius / 22));
 
   props.prizes.forEach((prize, i) => {
     ctx.beginPath();
     ctx.fillStyle = colors[i % colors.length];
     ctx.moveTo(0, 0);
-    ctx.arc(0, 0, radius - 5, arc * i - arc / 2, arc * (i + 1) - arc / 2);
+    ctx.arc(0, 0, radius - 10, arc * i - arc / 2, arc * (i + 1) - arc / 2);
     ctx.closePath();
     ctx.fill();
 
     ctx.save();
-    ctx.fillStyle = '#000';
-    ctx.font = `bold ${fontSize}px Arial`;
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold ${fontSize}px Inter`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.rotate(arc * i);
-    ctx.fillText(prize, textRadius, 0);
+    // Truncate text if too long
+    const maxTextWidth = radius * 0.5;
+    let prizeText = prize;
+    if (ctx.measureText(prizeText).width > maxTextWidth) {
+        while (ctx.measureText(prizeText + '...').width > maxTextWidth && prizeText.length > 0) {
+            prizeText = prizeText.slice(0, -1);
+        }
+        prizeText += '...';
+    }
+    ctx.fillText(prizeText, textRadius, 0);
     ctx.restore();
   });
 
   ctx.restore();
 
+  // Center "SPIN" button
+  const centerButtonRadius = radius / 4;
+  ctx.fillStyle = '#fff';
+  ctx.beginPath();
+  ctx.arc(radius, radius, centerButtonRadius, 0, Math.PI * 2);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = primaryColor.value;
+  ctx.font = `bold ${Math.max(16, radius/12)}px Inter`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('SPIN', radius, radius);
+
   // Draw pointer on the right
   const pointerSize = Math.max(15, radius / 25);
   const pointerWidth = Math.max(40, radius / 10);
-  ctx.fillStyle = '#333';
+  ctx.fillStyle = primaryColor.value;
   ctx.beginPath();
-  ctx.moveTo(radius * 2 - 5, radius);
+  ctx.moveTo(radius * 2, radius);
   ctx.lineTo(radius * 2 - pointerWidth, radius - pointerSize);
   ctx.lineTo(radius * 2 - pointerWidth, radius + pointerSize);
   ctx.closePath();
@@ -80,7 +111,6 @@ const spin = () => {
   const winnerIndex = getRandomInt(props.prizes.length);
   const totalRotations = 5;
   const arc = Math.PI * 2 / props.prizes.length;
-  // Correct the target rotation to align the center of the prize with the pointer at 0 radians (right side)
   const targetRotation = (totalRotations * Math.PI * 2) - (winnerIndex * arc) + (Math.random() * arc * 0.8 - arc * 0.4);
 
   let start: number | null = null;
@@ -121,6 +151,10 @@ const resizeCanvas = () => {
 };
 
 onMounted(() => {
+  // Use CSS variables from root for consistency
+  const rootStyle = getComputedStyle(document.documentElement);
+  primaryColor.value = rootStyle.getPropertyValue('--primary-color').trim() || '#007bff';
+
   if (wheelContainerRef.value) {
     resizeObserver = new ResizeObserver(resizeCanvas);
     resizeObserver.observe(wheelContainerRef.value);
@@ -161,6 +195,7 @@ watch(() => props.prizes, () => {
 canvas {
   cursor: pointer;
   border-radius: 50%;
-  box-shadow: 0 0 25px rgba(0,0,0,0.15);
+  /* A more subtle shadow */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.07);
 }
 </style>
