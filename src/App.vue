@@ -8,12 +8,12 @@ interface HistoryEntry {
     date: number;
 }
 
-const namesInput = ref('');
+const namesInput = ref('林舟\n顾澈\n沈野\n陈若松\n苏临舟\n明砚');
 const history = ref<HistoryEntry[]>([]);
 const activeTab = ref<'names' | 'history'>('names');
 
 const wheelSettings = reactive({
-    fontSize: 1.0,
+    fontSize: 1.5,
     textRadius: 0.6,
     textWidth: 0.8,
 });
