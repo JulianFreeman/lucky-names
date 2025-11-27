@@ -17,7 +17,7 @@ const canvasRef = ref<HTMLCanvasElement | null>(null);
 const rotation = ref(0);
 const isSpinning = ref(false);
 
-const colors = [ '#6D5B97', '#F2A65A', '#F2795A', '#73C8A9', '#A8D0E6', '#F76D83' ];
+const colors = [ '#E66060', '#46B9B0', '#3EA5BC', '#E5C25C', '#8B50A4', '#29B866' ];
 const primaryColor = ref('#007bff'); // Default fallback
 
 let resizeObserver: ResizeObserver | null = null;
@@ -55,7 +55,7 @@ const drawWheel = () => {
 
   props.prizes.forEach((prize, i) => {
     ctx.beginPath();
-    ctx.fillStyle = colors[i % colors.length]!;
+    ctx.fillStyle = colors[i % colors.length] ?? '#007bff';
     ctx.moveTo(0, 0);
     ctx.arc(0, 0, radius - 10, arc * i - arc / 2, arc * (i + 1) - arc / 2);
     ctx.closePath();
@@ -111,7 +111,7 @@ const drawWheel = () => {
 const getRandomInt = (max: number) => {
   const randomBuffer = new Uint32Array(1);
   crypto.getRandomValues(randomBuffer);
-  return randomBuffer[0]! % max;
+  return (randomBuffer[0] ?? 0) % max;
 };
 
 const spin = () => {
@@ -143,7 +143,7 @@ const spin = () => {
       rotation.value = targetRotation % (Math.PI * 2);
       drawWheel();
       isSpinning.value = false;
-      emit('winner-selected', props.prizes[winnerIndex]!);
+      emit('winner-selected', props.prizes[winnerIndex] ?? '');
     }
   };
 
