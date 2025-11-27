@@ -55,7 +55,7 @@ const drawWheel = () => {
 
   props.prizes.forEach((prize, i) => {
     ctx.beginPath();
-    ctx.fillStyle = colors[i % colors.length];
+    ctx.fillStyle = colors[i % colors.length]!;
     ctx.moveTo(0, 0);
     ctx.arc(0, 0, radius - 10, arc * i - arc / 2, arc * (i + 1) - arc / 2);
     ctx.closePath();
@@ -111,7 +111,7 @@ const drawWheel = () => {
 const getRandomInt = (max: number) => {
   const randomBuffer = new Uint32Array(1);
   crypto.getRandomValues(randomBuffer);
-  return randomBuffer[0] % max;
+  return randomBuffer[0]! % max;
 };
 
 const spin = () => {
@@ -143,7 +143,7 @@ const spin = () => {
       rotation.value = targetRotation % (Math.PI * 2);
       drawWheel();
       isSpinning.value = false;
-      emit('winner-selected', props.prizes[winnerIndex]);
+      emit('winner-selected', props.prizes[winnerIndex]!);
     }
   };
 
