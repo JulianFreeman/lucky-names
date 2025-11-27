@@ -121,8 +121,8 @@ const spin = () => {
   const winnerIndex = getRandomInt(props.prizes.length);
   const totalRotations = 5;
   const arc = Math.PI * 2 / props.prizes.length;
-  // Align winner to the left side (angle PI)
-  const targetRotation = (totalRotations * Math.PI * 2) + Math.PI - (winnerIndex * arc) + (Math.random() * arc * 0.8 - arc * 0.4);
+  // Align winner to the right side (angle 0)
+  const targetRotation = (totalRotations * Math.PI * 2) - (winnerIndex * arc) + (Math.random() * arc * 0.8 - arc * 0.4);
 
   let start: number | null = null;
   const duration = 5000; // 5 seconds
