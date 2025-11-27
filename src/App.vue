@@ -3,8 +3,13 @@ import { ref, computed, onMounted, watch, reactive } from 'vue';
 import LuckyWheel from './components/LuckyWheel.vue';
 import RightPanel from './components/RightPanel.vue';
 
+interface HistoryEntry {
+  name: string;
+  date: number;
+}
+
 const namesInput = ref('');
-const history = ref<string[]>([]);
+const history = ref<HistoryEntry[]>([]);
 const activeTab = ref<'names' | 'history'>('names');
 
 const wheelSettings = reactive({
@@ -45,13 +50,24 @@ const names = computed(() => {
 });
 
 const handleWinnerSelected = (winner: string) => {
-  history.value.unshift(winner);
+  history.value.unshift({ name: winner, date: Date.now() });
 };
 
 const clearHistory = () => {
   if (window.confirm('确定要清空所有历史记录吗？')) {
     history.value = [];
   }
+};
+
+const formatDate = (timestamp: number) => {
+  const date = new Date(timestamp);
+  const Y = date.getFullYear();
+  const M = (date.getMonth() + 1).toString().padStart(2, '0');
+  const D = date.getDate().toString().padStart(2, '0');
+  const h = date.getHours().toString().padStart(2, '0');
+  const m = date.getMinutes().toString().padStart(2, '0');
+  const s = date.getSeconds().toString().padStart(2, '0');
+  return `${Y}-${M}-${D} ${h}:${m}:${s}`;
 };
 
 // Load data from localStorage on component mount
@@ -62,7 +78,13 @@ onMounted(() => {
   }
   const savedHistory = localStorage.getItem('lucky-names-history');
   if (savedHistory) {
-    history.value = JSON.parse(savedHistory);
+    const parsedHistory = JSON.parse(savedHistory);
+    // Simple migration for old string[] history
+    if (parsedHistory.length > 0 && typeof parsedHistory[0] === 'string') {
+      history.value = parsedHistory.map((name: string) => ({ name, date: Date.now() }));
+    } else {
+      history.value = parsedHistory;
+    }
   }
   const savedSettings = localStorage.getItem('lucky-names-settings');
   if (savedSettings) {
@@ -99,7 +121,10 @@ watch(wheelSettings, (newValue) => {
             <button @click="clearHistory" class="clear-btn" v-if="history.length > 0">清空记录</button>
           </div>
           <ul v-if="history.length > 0">
-            <li v-for="(winner, index) in history" :key="index">{{ winner }}</li>
+            <li v-for="(entry, index) in history" :key="index">
+              <span class="history-name">{{ entry.name }}</span>
+              <span class="history-date">{{ formatDate(entry.date) }}</span>
+            </li>
           </ul>
           <p v-else class="no-history">暂无历史记录</p>
         </div>
@@ -149,6 +174,7 @@ watch(wheelSettings, (newValue) => {
   padding: 0 16px;
   flex-shrink: 0;
   z-index: 10;
+  box-sizing: border-box;
 }
 
 .main-content {
@@ -165,7 +191,7 @@ watch(wheelSettings, (newValue) => {
 }
 
 .main-content.shifted-left {
-  padding-right: 320px; /* 280px panel width + 40px padding */
+  padding-right: 320px;
 }
 
 .settings-btn {
@@ -314,15 +340,29 @@ watch(wheelSettings, (newValue) => {
 }
 
 .history-panel li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
   padding: 10px 4px;
   border-bottom: 1px solid var(--border-color);
-  color: var(--dark-gray);
   font-size: 15px;
 }
 
-.history-panel li:first-child {
+.history-name {
+  color: var(--dark-gray);
   font-weight: 500;
+}
+
+.history-panel li:first-child .history-name {
   color: var(--text-color);
+  font-weight: 700;
+}
+
+.history-date {
+  font-size: 12px;
+  color: #adb5bd;
+  flex-shrink: 0;
+  margin-left: 16px;
 }
 
 .no-history {
