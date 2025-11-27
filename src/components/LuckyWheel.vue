@@ -3,6 +3,9 @@ import { ref, onMounted, onUnmounted, watch } from 'vue';
 
 const props = defineProps<{
   prizes: string[];
+  fontSizeMultiplier: number;
+  textRadiusFactor: number;
+  textWidthMultiplier: number;
 }>();
 
 const emit = defineEmits<{
@@ -41,8 +44,14 @@ const drawWheel = () => {
   ctx.translate(radius, radius);
   ctx.rotate(rotation.value);
 
-  const textRadius = radius * 0.6;
-  const fontSize = Math.max(12, Math.floor(radius / 22));
+  const prizeCount = props.prizes.length || 1;
+  // Base font size calculation
+  const baseFontSizeDivisor = 15 + Math.max(0, prizeCount - 8) * 1.0;
+  const baseFontSize = Math.max(12, Math.floor(radius / baseFontSizeDivisor));
+
+  // Apply user-controlled multipliers
+  const fontSize = baseFontSize * props.fontSizeMultiplier;
+  const textRadius = radius * props.textRadiusFactor;
 
   props.prizes.forEach((prize, i) => {
     ctx.beginPath();
@@ -58,8 +67,9 @@ const drawWheel = () => {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.rotate(arc * i);
+
     // Truncate text if too long
-    const maxTextWidth = radius * 0.5;
+    const maxTextWidth = (radius - textRadius) * props.textWidthMultiplier;
     let prizeText = prize;
     if (ctx.measureText(prizeText).width > maxTextWidth) {
         while (ctx.measureText(prizeText + '...').width > maxTextWidth && prizeText.length > 0) {
@@ -174,6 +184,15 @@ watch(() => props.prizes, () => {
     drawWheel();
   }
 }, { deep: true });
+
+watch(
+  [() => props.fontSizeMultiplier, () => props.textRadiusFactor, () => props.textWidthMultiplier],
+  () => {
+    if (!isSpinning.value) {
+      drawWheel();
+    }
+  }
+);
 
 </script>
 

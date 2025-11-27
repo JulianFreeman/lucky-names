@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, reactive } from 'vue';
 import LuckyWheel from './components/LuckyWheel.vue';
+import RightPanel from './components/RightPanel.vue';
 
 const namesInput = ref('');
 const history = ref<string[]>([]);
 const activeTab = ref<'names' | 'history'>('names');
+
+const wheelSettings = reactive({
+  fontSize: 1.0,
+  textRadius: 0.6,
+  textWidth: 0.8,
+});
 
 const names = computed(() => {
   return namesInput.value.split('\n').filter(name => name.trim() !== '').map(name => name.trim());
@@ -30,16 +37,22 @@ onMounted(() => {
   if (savedHistory) {
     history.value = JSON.parse(savedHistory);
   }
+  const savedSettings = localStorage.getItem('lucky-names-settings');
+  if (savedSettings) {
+    Object.assign(wheelSettings, JSON.parse(savedSettings));
+  }
 });
 
 // Watch for changes and save to localStorage
 watch(namesInput, (newValue) => {
   localStorage.setItem('lucky-names-input', newValue);
 });
-
 watch(history, (newValue) => {
   localStorage.setItem('lucky-names-history', JSON.stringify(newValue));
 }, { deep: true });
+watch(wheelSettings, (newValue) => {
+  localStorage.setItem('lucky-names-settings', JSON.stringify(newValue));
+});
 </script>
 
 <template>
@@ -66,7 +79,20 @@ watch(history, (newValue) => {
       </div>
     </div>
     <div class="main-content">
-      <LuckyWheel :prizes="names" @winner-selected="handleWinnerSelected" />
+      <LuckyWheel 
+        :prizes="names"
+        :font-size-multiplier="wheelSettings.fontSize"
+        :text-radius-factor="wheelSettings.textRadius"
+        :text-width-multiplier="wheelSettings.textWidth"
+        @winner-selected="handleWinnerSelected" 
+      />
+    </div>
+    <div class="right-panel">
+      <RightPanel 
+        v-model:font-size="wheelSettings.fontSize"
+        v-model:text-radius="wheelSettings.textRadius"
+        v-model:text-width="wheelSettings.textWidth"
+      />
     </div>
   </div>
 </template>
@@ -87,6 +113,7 @@ watch(history, (newValue) => {
   flex-direction: column;
   box-shadow: none;
   padding: 0 16px;
+  flex-shrink: 0;
 }
 
 .tabs {
@@ -215,5 +242,14 @@ watch(history, (newValue) => {
   background-color: var(--light-gray);
   padding: 40px;
   box-sizing: border-box;
+  min-width: 0;
+}
+
+.right-panel {
+  width: 280px;
+  background-color: #ffffff;
+  border-left: 1px solid var(--border-color);
+  padding: 20px;
+  flex-shrink: 0;
 }
 </style>
