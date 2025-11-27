@@ -342,7 +342,7 @@ watch(wheelSettings, (newValue) => {
 .history-panel li {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center; /* Changed from baseline to center for more stable vertical alignment */
   padding: 10px 4px;
   border-bottom: 1px solid var(--border-color);
   font-size: 15px;
@@ -351,6 +351,10 @@ watch(wheelSettings, (newValue) => {
 .history-name {
   color: var(--dark-gray);
   font-weight: 500;
+  white-space: nowrap; /* Prevent name from wrapping */
+  overflow: hidden;    /* Hide overflow if name is too long */
+  text-overflow: ellipsis; /* Add ellipsis for truncated names */
+  max-width: 60%; /* Limit name width to leave space for date */
 }
 
 .history-panel li:first-child .history-name {
@@ -362,7 +366,9 @@ watch(wheelSettings, (newValue) => {
   font-size: 12px;
   color: #adb5bd;
   flex-shrink: 0;
-  margin-left: 16px;
+  margin-left: 8px; /* Reduced margin to bring date closer */
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; /* Monospaced font */
+  text-align: right;
 }
 
 .no-history {
