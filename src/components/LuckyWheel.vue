@@ -96,14 +96,14 @@ const drawWheel = () => {
   ctx.textBaseline = 'middle';
   ctx.fillText('SPIN', radius, radius);
 
-  // Draw pointer on the right
+  // Draw pointer on the right, pointing outwards
   const pointerSize = Math.max(15, radius / 25);
   const pointerWidth = Math.max(40, radius / 10);
   ctx.fillStyle = primaryColor.value;
   ctx.beginPath();
-  ctx.moveTo(radius * 2, radius);
-  ctx.lineTo(radius * 2 - pointerWidth, radius - pointerSize);
-  ctx.lineTo(radius * 2 - pointerWidth, radius + pointerSize);
+  ctx.moveTo(radius * 2 - pointerWidth, radius);
+  ctx.lineTo(radius * 2, radius - pointerSize);
+  ctx.lineTo(radius * 2, radius + pointerSize);
   ctx.closePath();
   ctx.fill();
 };
@@ -121,7 +121,8 @@ const spin = () => {
   const winnerIndex = getRandomInt(props.prizes.length);
   const totalRotations = 5;
   const arc = Math.PI * 2 / props.prizes.length;
-  const targetRotation = (totalRotations * Math.PI * 2) - (winnerIndex * arc) + (Math.random() * arc * 0.8 - arc * 0.4);
+  // Align winner to the left side (angle PI)
+  const targetRotation = (totalRotations * Math.PI * 2) + Math.PI - (winnerIndex * arc) + (Math.random() * arc * 0.8 - arc * 0.4);
 
   let start: number | null = null;
   const duration = 5000; // 5 seconds
