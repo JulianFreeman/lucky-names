@@ -34,8 +34,8 @@ const textWidthModel = computed({
     <h4>外观设置</h4>
     <div class="control-group">
       <label for="font-size">字体大小</label>
-      <input type="range" id="font-size" min="0.5" max="2.0" step="0.1" v-model.number="fontSizeModel" />
-      <span>{{ fontSize.toFixed(1) }}</span>
+      <input type="range" id="font-size" min="0.5" max="2.0" step="0.01" v-model.number="fontSizeModel" />
+      <span>{{ fontSize.toFixed(2) }}</span>
     </div>
     <div class="control-group">
       <label for="text-radius">字体位置</label>
@@ -44,7 +44,7 @@ const textWidthModel = computed({
     </div>
     <div class="control-group">
       <label for="text-width">字体宽度</label>
-      <input type="range" id="text-width" min="0.4" max="1.0" step="0.05" v-model.number="textWidthModel" />
+      <input type="range" id="text-width" min="0.4" max="1.0" step="0.01" v-model.number="textWidthModel" />
       <span>{{ textWidth.toFixed(2) }}</span>
     </div>
   </div>
