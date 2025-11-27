@@ -13,6 +13,33 @@ const wheelSettings = reactive({
   textWidth: 0.8,
 });
 
+const isSettingsPanelOpen = ref(false);
+const rightPanelRef = ref<HTMLElement | null>(null);
+const settingsBtnRef = ref<HTMLElement | null>(null);
+
+const toggleSettingsPanel = () => {
+  isSettingsPanelOpen.value = !isSettingsPanelOpen.value;
+};
+
+const handleClickOutside = (event: MouseEvent) => {
+  if (isSettingsPanelOpen.value) {
+    const target = event.target as Node;
+    const isClickInsidePanel = rightPanelRef.value?.contains(target);
+    const isClickOnButton = settingsBtnRef.value?.contains(target);
+    if (!isClickInsidePanel && !isClickOnButton) {
+      isSettingsPanelOpen.value = false;
+    }
+  }
+};
+
+watch(isSettingsPanelOpen, (isOpen) => {
+  if (isOpen) {
+    document.addEventListener('mousedown', handleClickOutside);
+  } else {
+    document.removeEventListener('mousedown', handleClickOutside);
+  }
+});
+
 const names = computed(() => {
   return namesInput.value.split('\n').filter(name => name.trim() !== '').map(name => name.trim());
 });
@@ -79,7 +106,9 @@ watch(wheelSettings, (newValue) => {
       </div>
     </div>
     <div class="main-content">
-      <LuckyWheel 
+                    <button @click="toggleSettingsPanel" class="settings-btn" ref="settingsBtnRef">
+                      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="currentColor"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61.22l2 3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/></svg>
+                    </button>      <LuckyWheel 
         :prizes="names"
         :font-size-multiplier="wheelSettings.fontSize"
         :text-radius-factor="wheelSettings.textRadius"
@@ -87,13 +116,15 @@ watch(wheelSettings, (newValue) => {
         @winner-selected="handleWinnerSelected" 
       />
     </div>
-    <div class="right-panel">
-      <RightPanel 
-        v-model:font-size="wheelSettings.fontSize"
-        v-model:text-radius="wheelSettings.textRadius"
-        v-model:text-width="wheelSettings.textWidth"
-      />
-    </div>
+    <Transition name="slide-fade">
+      <div v-if="isSettingsPanelOpen" class="right-panel" ref="rightPanelRef">
+        <RightPanel 
+          v-model:font-size="wheelSettings.fontSize"
+          v-model:text-radius="wheelSettings.textRadius"
+          v-model:text-width="wheelSettings.textWidth"
+        />
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -103,6 +134,8 @@ watch(wheelSettings, (newValue) => {
   height: 100vh;
   background-color: var(--light-gray);
   color: var(--text-color);
+  position: relative;
+  overflow: hidden;
 }
 
 .sidebar {
@@ -114,6 +147,64 @@ watch(wheelSettings, (newValue) => {
   box-shadow: none;
   padding: 0 16px;
   flex-shrink: 0;
+  z-index: 10;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--light-gray);
+  padding: 40px;
+  box-sizing: border-box;
+  min-width: 0;
+  position: relative;
+}
+
+.settings-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 20;
+  background-color: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: var(--dark-gray);
+  transition: all 0.2s;
+}
+.settings-btn:hover {
+  color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.right-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100%;
+  background-color: #ffffff;
+  border-left: 1px solid var(--border-color);
+  padding: 20px;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.08);
+  z-index: 100;
+}
+
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: transform 0.3s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateX(100%);
 }
 
 .tabs {
@@ -232,24 +323,5 @@ watch(wheelSettings, (newValue) => {
   text-align: center;
   margin-top: 30px;
   font-size: 15px;
-}
-
-.main-content {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--light-gray);
-  padding: 40px;
-  box-sizing: border-box;
-  min-width: 0;
-}
-
-.right-panel {
-  width: 280px;
-  background-color: #ffffff;
-  border-left: 1px solid var(--border-color);
-  padding: 20px;
-  flex-shrink: 0;
 }
 </style>
